@@ -1,6 +1,5 @@
 package authentication.pojo;
 
-import authentication.utils.ConstantData;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -9,18 +8,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@TableName("USER")
-public class User {
+@TableName("ADMIN")
+public class Admin {
     @TableId(type = IdType.AUTO)
     Integer id;
     String username;
     String password;
-    Integer status;
-    Integer credit;
-    public User(String username,String password){
+    public Admin(String username,String password){
         this.username = username;
         this.password = password;
-        status = ConstantData.STATUS_NORMAL;
-        credit = ConstantData.CREDIT_INITIAL;
     }
 }
