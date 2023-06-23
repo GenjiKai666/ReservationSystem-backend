@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 public class FacilityController {
@@ -32,6 +33,17 @@ public class FacilityController {
             } else {
                 return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "发布设施失败");
             }
+        } else {
+            return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "未通过认证");
+        }
+    }
+    @PostMapping("/facilities")
+    public ResponseResult<?> getFacilities(@RequestParam("operator") @NotBlank String operator,
+                                           @RequestParam("token") @NotBlank String token,
+                                           @RequestParam("type") @NotBlank String type){
+        if (authClient.auth(operator, token, type).getData().equals(true)) {
+            List<Facility> facilities = facilityService.getFacilities();
+            return new ResponseResult<>(ConstantData.CODE_NORMAL,"获取信息成功",facilities);
         } else {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "未通过认证");
         }
