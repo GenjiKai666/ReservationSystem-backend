@@ -5,14 +5,14 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import reservation.config.AuthClientConfig;
+import reservation.config.ClientConfig;
 import reservation.pojo.User;
 import reservation.utils.ResponseResult;
 
 import javax.validation.constraints.NotBlank;
 
 @Component
-@FeignClient(name = "authentication", configuration = AuthClientConfig.class)
+@FeignClient(name = "authentication", configuration = ClientConfig.class)
 public interface AuthClient {
     @PostMapping("/auth")
     ResponseResult<?> auth(@RequestParam("username") @NotBlank String username,
