@@ -48,4 +48,16 @@ public class FacilityController {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "未通过认证");
         }
     }
+    @PostMapping("/facility")
+    public ResponseResult<?> getFacility(@RequestParam("operator") @NotBlank String operator,
+                                         @RequestParam("token") @NotBlank String token,
+                                         @RequestParam("type") @NotBlank String type,
+                                         @RequestParam("facility_id") @NotNull Integer facilityId){
+        if (authClient.auth(operator, token, type).getData().equals(true)) {
+            Facility facility = facilityService.getFacility(facilityId);
+            return new ResponseResult<>(ConstantData.CODE_NORMAL,"获取设施信息成功",facility);
+        } else {
+            return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "未通过认证");
+        }
+    }
 }

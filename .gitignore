@@ -3,3 +3,4 @@
 /authentication/target/
 /manage/target/
 /reservation/target/
+/reservation/src/test/java/reservation/utils/UtilsTest.java

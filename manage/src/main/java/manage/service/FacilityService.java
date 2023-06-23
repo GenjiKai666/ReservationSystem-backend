@@ -21,4 +21,7 @@ public class FacilityService {
     public List<Facility> getFacilities(){
         return facilityMapper.selectList(Wrappers.lambdaQuery(Facility.class));
     }
+    public Facility getFacility(Integer facilityId){
+        return facilityMapper.selectById(facilityId);
+    }
 }
