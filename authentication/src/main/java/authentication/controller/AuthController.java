@@ -75,7 +75,7 @@ public class AuthController {
     public ResponseResult<User> getUserInfo(@RequestParam("operator") @NotBlank String operator,
                                             @RequestParam("token") @NotBlank String token,
                                             @RequestParam("type") @NotBlank String type,
-                                            @RequestParam("username") String username) {
+                                            @RequestParam("username")@NotBlank String username) {
         if (auth(operator, token, type).getData().equals(true)) {
             if (type.equals("user") && !operator.equals(username)) {
                 return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "无权限查询其他用户信息");
