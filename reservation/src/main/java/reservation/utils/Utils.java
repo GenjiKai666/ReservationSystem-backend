@@ -24,4 +24,11 @@ public class Utils {
             return false;
         }
     }
+    public static Long hhmm2long(String hhmm) {
+        String[] str = hhmm.split(":");
+        int hour = Integer.parseInt(str[0]);
+        int minute = Integer.parseInt(str[1]);
+        Long time = hour*60*60*1000L + minute*60*1000L;
+        return time;
+    }
 }

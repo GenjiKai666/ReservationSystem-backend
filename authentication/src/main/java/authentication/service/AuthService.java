@@ -5,10 +5,13 @@ import authentication.mapper.RedisMapper;
 import authentication.mapper.UserMapper;
 import authentication.pojo.Admin;
 import authentication.pojo.User;
+import authentication.utils.ConstantData;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -77,5 +80,28 @@ public class AuthService {
             user = new User();
         }
         return user;
+    }
+    public List<User> getUsers(){
+        return userMapper.selectList(Wrappers.lambdaQuery(User.class));
+    }
+    public boolean blockUser(Integer id){
+        User user = userMapper.selectById(id);
+        if(user == null){
+            return false;
+        }
+        else {
+            user.setStatus(ConstantData.STATUS_BLOCKED);
+            return userMapper.updateById(user)>0;
+        }
+    }
+    public boolean unblockUser(Integer id){
+        User user = userMapper.selectById(id);
+        if(user == null){
+            return false;
+        }
+        else {
+            user.setStatus(ConstantData.STATUS_NORMAL);
+            return userMapper.updateById(user)>0;
+        }
     }
 }

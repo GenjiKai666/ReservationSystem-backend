@@ -18,6 +18,13 @@ import java.util.stream.Collectors;
 public class ReservationService {
     @Autowired
     ReservationMapper reservationMapper;
+    public List<Reservation> getReservations(Integer userId){
+        List<Reservation> reservations = reservationMapper.selectList(Wrappers.lambdaQuery(Reservation.class)
+                .eq(Reservation::getUserId, userId));
+        return reservations.stream()
+                .sorted(Comparator.comparing(Reservation::getStartTime).reversed())
+                .collect(Collectors.toList());
+    }
 
     public List<Reservation> getReservationInfo(Integer facilityId, Long currentTime) {
         List<Reservation> reservations = reservationMapper.selectList(Wrappers.lambdaQuery(Reservation.class)
@@ -30,8 +37,8 @@ public class ReservationService {
     }
 
     public boolean reserve(Reservation reservation, Facility facility) {
-        long start_relative = reservation.getStartTime() % 86400000;
-        long end_relative = reservation.getEndTime() % 86400000;
+        long start_relative = reservation.getStartTime() % 86400000+8*60*60*1000L;
+        long end_relative = reservation.getEndTime() % 86400000+8*60*60*1000L;
         long duration = reservation.getEndTime() - reservation.getStartTime();
         long currentTime = System.currentTimeMillis();
         //只能预约一周之内的时间
@@ -56,5 +63,24 @@ public class ReservationService {
             }
         }
 
+    }
+
+    public List<Reservation> getRawReservations() {
+        List<Reservation> reservations = reservationMapper.selectList(Wrappers.lambdaQuery(Reservation.class));
+        return reservations.stream()
+                .filter(x -> x.getStatus().equals(ConstantData.STATUS_WAIT))
+                .sorted(Comparator.comparing(Reservation::getStartTime))
+                .collect(Collectors.toList());
+    }
+
+    public boolean updateReservation(Reservation reservation) {
+        return reservationMapper.updateById(reservation) > 0;
+    }
+    public List<Reservation> getToBeSignedReservations(){
+        List<Reservation> reservations = reservationMapper.selectList(Wrappers.lambdaQuery(Reservation.class));
+        return reservations.stream()
+                .filter(x -> x.getStatus().equals(ConstantData.STATUS_TO_BE_SIGNED))
+                .sorted(Comparator.comparing(Reservation::getStartTime))
+                .collect(Collectors.toList());
     }
 }
