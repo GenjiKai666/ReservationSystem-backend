@@ -35,6 +35,9 @@ public class FacilityService {
                 .collect(Collectors.toList());
         return facilityVues;
     }
+    public Facility getFacilityStr(String facilityName){
+        return facilityMapper.selectOne(Wrappers.lambdaQuery(Facility.class).eq(Facility::getFacilityName,facilityName));
+    }
 
     public boolean deleteFacility(Integer facilityId) {
         return facilityMapper.deleteById(facilityId) > 0;

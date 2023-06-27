@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reservation.client.AuthClient;
 import reservation.client.FacilityClient;
-import reservation.pojo.Facility;
-import reservation.pojo.Reservation;
-import reservation.pojo.ReservationVue;
-import reservation.pojo.User;
+import reservation.pojo.*;
 import reservation.service.ReservationService;
 import reservation.utils.ConstantData;
 import reservation.utils.ResponseResult;
@@ -36,8 +33,8 @@ public class ReservationController {
     @Autowired
     ReservationService reservationService;
 
-    @PostMapping("/reservation/info")
-    public ResponseResult<?> getReservationInfo(@RequestParam("operator") @NotBlank String operator,
+    @PostMapping("/info")
+    public ResponseResult<?> getInfo(@RequestParam("operator") @NotBlank String operator,
                                                 @RequestParam("token") @NotBlank String token,
                                                 @RequestParam("type") @NotBlank String type,
                                                 @RequestParam("facility_id") Integer facilityId) {
@@ -46,7 +43,9 @@ public class ReservationController {
                     .stream()
                     .map(Reservation::getTime)
                     .collect(Collectors.toList());
-            return new ResponseResult<>(ConstantData.CODE_NORMAL, "获取信息成功", infos);
+            Info info = reservationService.getInfo(facilityId);
+            info.setReservationInfo(infos);
+            return new ResponseResult<>(ConstantData.CODE_NORMAL, "获取信息成功", info);
         } else {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "未通过认证");
         }
@@ -58,10 +57,10 @@ public class ReservationController {
                                              @RequestParam("type") @NotBlank String type,
                                              @RequestParam("username") String username) {
         if (authClient.auth(operator, token, type).getData().equals(true)) {
-            if (type.equals("user") && !operator.equals(username)){
-                return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED,"查询失败");
+            if (type.equals("user") && !operator.equals(username)) {
+                return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "查询失败");
             }
-            User user = authClient.getUserInfo(operator,token,type,username).getData();
+            User user = authClient.getUserInfo(operator, token, type, username).getData();
             List<ReservationVue> infos = reservationService.getReservations(user.getId())
                     .stream()
                     .map(x -> new ReservationVue(x, facilityClient.getFacility(operator, token, type, x.getFacilityId()).getData()))
@@ -121,6 +120,63 @@ public class ReservationController {
             return new ResponseResult<>(ConstantData.CODE_NORMAL, "获取待处理订单成功", rawReservations);
         } else {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "获取失败");
+        }
+    }
+
+    @PostMapping("/reservation/cancel")
+    public ResponseResult<?> cancelReservation(@RequestParam("operator") @NotBlank String operator,
+                                               @RequestParam("token") @NotBlank String token,
+                                               @RequestParam("type") @NotBlank String type,
+                                               @RequestParam("reservationId") Integer reservationId) {
+        if (authClient.auth(operator, token, type).getData().equals(true)) {
+            if (reservationService.cancelReservation(reservationId)) {
+                return new ResponseResult<>(ConstantData.CODE_NORMAL, "成功");
+            } else {
+                return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "失败");
+            }
+        } else {
+            return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "认证失败");
+        }
+    }
+
+    @PostMapping("/comment/put")
+    public ResponseResult<?> putComment(@RequestParam("operator") @NotBlank String operator,
+                                        @RequestParam("token") @NotBlank String token,
+                                        @RequestParam("type") @NotBlank String type,
+                                        @RequestParam("facilityName") String facilityName,
+                                        @RequestParam("reservationId")Integer reservationId,
+                                        @RequestParam("rate") Integer rate,
+                                        @RequestParam("content") String content) {
+        if (authClient.auth(operator, token, type).getData().equals(true)) {
+            User user = authClient.getUserInfo(operator,token,type,operator).getData();
+            Facility facility = facilityClient.getFacility_str(operator,token,type,facilityName).getData();
+            if(reservationService.putComment(user.getId(), facility.getId(),reservationId, rate,content)){
+                return new ResponseResult<>(ConstantData.CODE_NORMAL,"成功");
+            }
+            else {
+                return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED,"失败");
+            }
+        } else {
+            return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "认证失败");
+        }
+    }
+    @PostMapping("/comment/get")
+    public ResponseResult<?> getComment(@RequestParam("operator") @NotBlank String operator,
+                                        @RequestParam("token") @NotBlank String token,
+                                        @RequestParam("type") @NotBlank String type,
+                                        @RequestParam("facilityName") String facilityName,
+                                        @RequestParam("reservation_id")Integer reservationId) {
+        if (authClient.auth(operator, token, type).getData().equals(true)) {
+            User user = authClient.getUserInfo(operator,token,type,operator).getData();
+            Facility facility = facilityClient.getFacility_str(operator,token,type,facilityName).getData();
+            Comment comment = reservationService.getComment(user.getId(),facility.getId(),reservationId);
+            if(comment == null){
+                return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED,"失败");
+            }
+            CommentVue commentVue = new CommentVue(comment);
+            return new ResponseResult<>(ConstantData.CODE_NORMAL,"成功",commentVue);
+        } else {
+            return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "认证失败");
         }
     }
 }

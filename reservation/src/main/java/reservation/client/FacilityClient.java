@@ -19,4 +19,9 @@ public interface FacilityClient {
                                          @RequestParam("token") @NotBlank String token,
                                          @RequestParam("type") @NotBlank String type,
                                          @RequestParam("facility_id") @NotNull Integer facilityId);
+    @PostMapping("/facility_str")
+    ResponseResult<Facility> getFacility_str(@RequestParam("operator") @NotBlank String operator,
+                                         @RequestParam("token") @NotBlank String token,
+                                         @RequestParam("type") @NotBlank String type,
+                                         @RequestParam("facilityName") @NotNull String facilityName);
 }
