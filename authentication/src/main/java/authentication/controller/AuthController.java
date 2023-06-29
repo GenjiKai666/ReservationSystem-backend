@@ -149,4 +149,8 @@ public class AuthController {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "用户未通过认证");
         }
     }
+    @PostMapping("/user/break")
+    public void userBreak(@RequestParam("userId")Integer userId){
+        authService.userBreak(userId);
+    }
 }

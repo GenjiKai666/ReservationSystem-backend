@@ -104,4 +104,12 @@ public class AuthService {
             return userMapper.updateById(user)>0;
         }
     }
+    public void userBreak(Integer userId){
+        User user = userMapper.selectById(userId);
+        user.setCredit(user.getCredit()-1);
+        if(user.getCredit()<60){
+            user.setStatus(ConstantData.STATUS_BLOCKED);
+        }
+        userMapper.updateById(user);
+    }
 }

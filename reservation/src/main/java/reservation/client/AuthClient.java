@@ -23,4 +23,6 @@ public interface AuthClient {
                                      @RequestParam("token") @NotBlank String token,
                                      @RequestParam("type") @NotBlank String type,
                                      @RequestParam("username") String username);
+    @PostMapping("/user/break")
+    void userBreak(@RequestParam("userId")Integer userId);
 }

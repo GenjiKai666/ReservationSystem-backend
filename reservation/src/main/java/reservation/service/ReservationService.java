@@ -21,6 +21,13 @@ public class ReservationService {
     ReservationMapper reservationMapper;
     @Autowired
     CommentMapper commentMapper;
+    public void check(Integer id){
+        Reservation reservation = reservationMapper.selectById(id);
+        if (Objects.equals(reservation.getStatus(), ConstantData.STATUS_TO_BE_SIGNED)){
+            reservation.setStatus(ConstantData.STATUS_SIGNED);
+            reservationMapper.updateById(reservation);
+        }
+    }
     public Info getInfo(Integer facilityId){
         Integer rates = 0;
         List<Comment> comments = commentMapper.selectList(Wrappers.lambdaQuery(Comment.class)
@@ -30,7 +37,13 @@ public class ReservationService {
             commentInfos.add(new CommentVue(comment));
             rates = rates+comment.getRate();
         }
-        Integer avgRate = rates/comments.size();
+        Integer avgRate;
+        if (comments.size() == 0){
+            avgRate = 0;
+        }
+        else {
+            avgRate = rates/comments.size();
+        }
         return new Info(avgRate,null,commentInfos);
     }
 
@@ -46,7 +59,7 @@ public class ReservationService {
         List<Reservation> reservations = reservationMapper.selectList(Wrappers.lambdaQuery(Reservation.class)
                 .eq(Reservation::getFacilityId, facilityId));
         return reservations.stream()
-                .filter(x -> x.getStartTime() > currentTime)
+                .filter(x -> x.getEndTime() > currentTime)
                 .filter(x -> !Objects.equals(x.getStatus(), ConstantData.STATUS_CANCELED))
                 .sorted(Comparator.comparing(Reservation::getStartTime))
                 .collect(Collectors.toList());

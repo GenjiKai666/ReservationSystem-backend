@@ -79,7 +79,7 @@ public class ReservationController {
         if (authClient.auth(operator, token, type).getData().equals(true)) {
             User currentUser = authClient.getUserInfo(operator, token, type, operator).getData();
             Facility facility = facilityClient.getFacility(operator, token, type, reservation.getFacilityId()).getData();
-            if (currentUser.getStatus() == 1 || currentUser.getCredit() <= 60) {
+            if (currentUser.getStatus() == 1 || currentUser.getCredit() <60) {
                 return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "您已被拉黑或信用分过低");
             } else {
                 reservation.setUserId(currentUser.getId());
@@ -178,5 +178,9 @@ public class ReservationController {
         } else {
             return new ResponseResult<>(ConstantData.CODE_OPERATION_FAILED, "认证失败");
         }
+    }
+    @PostMapping("/check")
+    public void check(@RequestParam("id") Integer id){
+        reservationService.check(id);
     }
 }

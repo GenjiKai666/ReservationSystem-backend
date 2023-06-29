@@ -3,6 +3,7 @@ package reservation.job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import reservation.client.AuthClient;
 import reservation.pojo.Reservation;
 import reservation.service.ReservationService;
 import reservation.utils.ConstantData;
@@ -13,6 +14,8 @@ import java.util.List;
 public class ReservationCheck {
     @Autowired
     ReservationService reservationService;
+    @Autowired
+    AuthClient authClient;
 
     //30秒执行一次
     @Scheduled(cron = "*/30000 * * * * ?")
@@ -40,6 +43,7 @@ public class ReservationCheck {
         if (mostRecent.getStartTime()-currentTime<0){
             mostRecent.setStatus(ConstantData.STATUS_BREAK);
             reservationService.updateReservation(mostRecent);
+            authClient.userBreak(mostRecent.getUserId());
         }
     }
 }
